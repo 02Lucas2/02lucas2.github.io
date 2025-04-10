@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Orçamento Oficina - Versão Final</title>
+  <style>
+    /* Estilos Otimizados */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      font-size: 12px;
+      background: rgba(61, 61, 61, 0.171);
+    }
+    
+    .cabecalho {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .dados-cliente {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 15px 0;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    
+    th, td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: left;
+    }
+    
+    input {
+      border: 1px solid #ccc;
+      padding: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .total-section {
+      text-align: right;
+      margin-top: 20px;
+      position: relative;
+    }
+    
+    .desconto-container {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 25px;
+      background: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    
+    .botao-desconto {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+
+    .Obs1{
+
+      border: 1px solid #ccc;
+      padding: 5px;
+      width: 50%;
+      box-sizing: border-box;
+
+
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabeçalho Oficina -->
+  <div class="cabecalho">
+    <div class="logo">
+      <img src="Garagem.jpeg" alt="Logo" style="height:80px">
+    </div>
+    <div class="dados-oficina">
+      <p><strong>NOME FANTASIA:</strong> GARAGEM140</p>
+      <p><strong>ENDEREÇO:</strong> RUA ITALO DINELLI, 140 INDEPEDENCIA</p>
+      <p><strong>CIDADE:</strong> BELO HORIZONTE</p>
+      <p><strong>TELEFONE:</strong> (31) 99798-4480</p>
+    </div>
+  </div>
+
+  <!-- Dados do Cliente -->
+  <div class="dados-cliente">
+    <div class="input-group">
+      <label>NOME DO CLIENTE:</label>
+      <input type="text">
+    </div>
+    <div class="input-group">
+      <label>DATA:</label>
+      <input type="date">
+    </div>
+    <div class="input-group">
+      <label>TELEFONE:</label>
+      <input type="tel">
+    </div>
+    <div class="input-group">
+      <label>PLACA:</label>
+      <input type="text">
+    </div>
+    <div class="input-group">
+      <label>MODELO DO VEÍCULO:</label>
+      <input type="text">
+    </div>
+    <div class="input-group">
+      <label>ENDEREÇO:</label>
+      <input type="text">
+    </div>
+    <div class="input-group">
+      <label>MECÂNICO:</label>
+      <input type="text">
+    </div>
+  </div>
+
+  <!-- Tabela com 35 linhas -->
+  <table>
+    <thead>
+      <tr>
+        <th>DISCRIMINAÇÃO DETALHADA DAS PEÇAS</th>
+        <th style="width:80px">QTDE</th>
+        <th style="width:120px">VALOR UNIT.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 35 linhas editáveis -->
+      <script>
+        // Gerar 35 linhas automaticamente
+        for(let i = 0; i < 15; i++) {
+          document.write(`
+            <tr>
+              <td><input type="text"></td>
+              <td><input type="number" class="qtde"></td>
+              <td><input type="number" class="valor" step="0.01"></td>
+            </tr>
+          `);
+        }
+      </script>
+    </tbody>
+  </table>
+
+  <!-- Total e Desconto -->
+  <div class="total-section">
+    <button class="botao-desconto" onclick="toggleDesconto()">APLICAR DESCONTO</button>
+    <strong>TOTAL: R$ <span id="total">0,00</span></strong>
+    
+    <div class="desconto-container" id="descontoBox">
+      <div style="margin-bottom:8px">
+        <button onclick="tipoDesconto = 'valor'">R$</button>
+        <button onclick="tipoDesconto = 'porcentagem'">%</button>
+      </div>
+      <input type="number" id="descontoInput" step="0.01" placeholder="Valor">
+    </div>
+  </div>
+
+<script>
+  // Variáveis globais
+  let tipoDesconto = 'valor';
+  const formatter = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2
+  });
+
+  // Função principal de cálculo
+  function calcularTotal() {
+    let total = 0;
+    
+    // Somar todas as linhas
+    document.querySelectorAll('tbody tr').forEach(linha => {
+      const qtde = parseFloat(linha.querySelector('.qtde').value) || 0;
+      const valor = parseFloat(linha.querySelector('.valor').value) || 0;
+      total += qtde * valor;
+    });
+
+    // Aplicar desconto
+    const desconto = parseFloat(document.getElementById('descontoInput').value) || 0;
+    
+    if(tipoDesconto === 'porcentagem' && !isNaN(desconto)) {
+      total = total - (total * (desconto/100));
+    } else {
+      total = total - desconto;
+    }
+
+    // Atualizar display
+    document.getElementById('total').textContent = formatter.format(total);
+  }
+
+  // Controles de interface
+  function toggleDesconto() {
+    const box = document.getElementById('descontoBox');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Event listeners
+  document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', calcularTotal);
+  });
+
+  // Inicialização
+  calcularTotal();
+</script>
+
+<footer>
+  <div class="Obs1">
+   <label>Obs:</label>
+   <input type="text1" > 
+  </div>
+</footer>
+
+</body>
+</html>
